@@ -1,4 +1,71 @@
 class ManageIQ::Providers::IbmCloud::PowerVirtualServers::NetworkManager::CloudSubnet < ::CloudSubnet
+  supports :create
+
+  def self.params_for_create(ems)
+    {
+      :fields => [
+        {
+          :component => 'text-field',
+          :id        => 'subnet_name',
+          :name      => 'subnet_name',
+          :label     => _('Subnet Name'),
+        },
+        {
+          :component => 'select',
+          :name      => 'type',
+          :id        => 'type',
+          :label     => _('Type'),
+          :options   => [
+            {
+              :label => 'vlan',
+              :value => 'vlan',
+            },
+            {
+              :label => 'pub-vlan',
+              :value => 'pub-vlan',
+            }
+          ]
+        },
+        {
+          :component => 'text-field',
+          :id        => 'subnet_cidr',
+          :name      => 'subnet_cidr',
+          :label     => _('Subnet CIDR'),
+          :isRequired => true,
+          :validate   => [{:type => 'required'}]
+        },
+        {
+          :component => 'text-area',
+          :id        => 'dns_servers',
+          :name      => 'dns_servers',
+          :label     => _('DNS Servers'),
+        },
+        # TODO: Validate starting/Ending IP addresses must both be set or both be unset
+        #       Use 'IP Address Ranges' subform?
+        {
+          :component => 'text-field',
+          :id        => 'starting_ip_address',
+          :name      => 'starting_ip_address',
+          :label     => _('Starting IP Address'),
+        },
+        {
+          :component => 'text-field',
+          :id        => 'ending_ip_address',
+          :name      => 'ending_ip_address',
+          :label     => _('Ending IP Address'),
+        },
+        {
+          :component => 'switch',
+          :id        => 'jumbo',
+          :name      => 'jumbo',
+          :label     => _('MTU Jumbo Network'),
+          :onText    => 'Enabled',
+          :offText   => 'Disabled',
+        },
+      ],
+    }
+  end
+
   supports :delete do
     if number_of(:vms) > 0
       unsupported_reason_add(:delete, _("The Network has active VMIs related to it"))
