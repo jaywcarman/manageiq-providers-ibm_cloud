@@ -175,16 +175,16 @@
           :data_type: :string
           :min_length: 1
           :max_length: 5
-        :instance_type:
+        :sys_type:
           :values_from:
-            :method: :allowed_instance_type
+            :method: :allowed_sys_type
           :description: Processor
           :required: true
           :display: :edit
           :data_type: :integer
-        :sys_type:
+        :instance_type:
           :values_from:
-            :method: :allowed_sys_type
+            :method: :allowed_instance_type
           :description: Machine Type
           :required: true
           :display: :edit

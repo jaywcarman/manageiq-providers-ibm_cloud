@@ -59,18 +59,18 @@ module ManageIQ::Providers::IbmCloud::PowerVirtualServers::CloudManager::Provisi
 
     if sap_image?
       specs['name']         = get_option(:vm_target_name)
-      specs['profile_id']   = get_option_last(:sys_type)
+      specs['profile_id']   = get_option_last(:instance_type)
       specs['ssh_key_name'] = chosen_key_pair unless chosen_key_pair == 'None'
     else
       specs['server_name']   = get_option(:vm_target_name)
       specs['memory']        = get_option_last(:vm_memory).to_i
       specs['processors']    = get_option_last(:entitled_processors).to_f
-      specs['proc_type']     = get_option_last(:instance_type)
+      specs['proc_type']     = get_option_last(:sys_type)
       specs['pin_policy']    = get_option_last(:pin_policy)
       specs['replicants']    = 1 # TODO: we have to use this field instead of what 'MIQ' does
       specs['key_pair_name'] = chosen_key_pair unless chosen_key_pair == 'None'
       specs['storage_type']  = get_option_last(:storage_type)
-      specs['sys_type']      = get_option_last(:sys_type)
+      specs['instance_type'] = get_option_last(:instance_type)
     end
 
     specs['placement_group'] = get_option(:placement_group) unless get_option(:placement_group).nil?

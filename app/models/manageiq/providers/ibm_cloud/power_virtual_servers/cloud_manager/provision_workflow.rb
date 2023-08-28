@@ -36,7 +36,7 @@ class ManageIQ::Providers::IbmCloud::PowerVirtualServers::CloudManager::Provisio
   def sap_flavor
     if sap_image?
       begin
-        selected_flavor_name = values&.dig(:sys_type, 1)
+        selected_flavor_name = values&.dig(:instance_type, 1)
         ar_ems.flavors.find_by(:name => selected_flavor_name)
       end
     end
@@ -54,7 +54,7 @@ class ManageIQ::Providers::IbmCloud::PowerVirtualServers::CloudManager::Provisio
     end
   end
 
-  def allowed_instance_type(_options = {})
+  def allowed_sys_type(_options = {})
     return {} if ar_ems.nil?
 
     if sap_image?
@@ -70,15 +70,15 @@ class ManageIQ::Providers::IbmCloud::PowerVirtualServers::CloudManager::Provisio
     end
   end
 
-  def allowed_sys_type(_options = {})
+  def allowed_instance_type(_options = {})
     return {} if ar_ems.nil?
 
     flavor_type = "ManageIQ::Providers::IbmCloud::PowerVirtualServers::CloudManager::#{sap_image? ? 'SAPProfile' : 'SystemType'}"
 
-    ar_sys_types = ar_ems.flavors.find_all { |flavor| flavor.type == flavor_type }
+    ar_instance_types = ar_ems.flavors.find_all { |flavor| flavor.type == flavor_type }
 
-    sys_types = ar_sys_types&.map&.each_with_index { |sys_type, i| [i, sys_type['name']] }
-    Hash[sys_types || {}]
+    instance_types = ar_instance_types&.map&.each_with_index { |instance_type, i| [i, instance_type['name']] }
+    Hash[instance_types || {}]
   end
 
   def allowed_storage_type(_options = {})
@@ -160,7 +160,7 @@ class ManageIQ::Providers::IbmCloud::PowerVirtualServers::CloudManager::Provisio
   end
 
   def validate_entitled_processors(_field, values, _dlg, _fld, value)
-    dedicated = values[:instance_type][1] == 'dedicated'
+    dedicated = values[:sys_type][1] == 'dedicated'
 
     fval = /^\s*[\d]*(\.[\d]+)?\s*$/.match?(value) ? value.strip.to_f : 0
     return _("Entitled Processors field does not contain a well-formed positive number") unless fval > 0
@@ -196,7 +196,7 @@ class ManageIQ::Providers::IbmCloud::PowerVirtualServers::CloudManager::Provisio
 
     # If policy is affinity, check to make sure the new vm has the same flavor as all the members of the group
     valid = if placement_group[:policy] == 'affinity' && vms_in_placement_group.present?
-              vms_in_placement_group.first.flavor.name == values&.dig(:sys_type, 1)
+              vms_in_placement_group.first.flavor.name == values&.dig(:instance_type, 1)
             else
               true
             end
@@ -212,7 +212,7 @@ class ManageIQ::Providers::IbmCloud::PowerVirtualServers::CloudManager::Provisio
     return if vms_in_resource_pool.blank?
 
     # Shared processor pools are used and shared by a set of virtual server instances of the same machine type (host).
-    valid = vms_in_resource_pool.first.flavor.name == values&.dig(:sys_type, 1)
+    valid = vms_in_resource_pool.first.flavor.name == values&.dig(:instance_type, 1)
     _('Invalid processor pool - incompatible machine type (host)') unless valid
   end
 
